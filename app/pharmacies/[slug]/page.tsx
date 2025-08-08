@@ -17,9 +17,9 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
 
   return {
     title: `Pharmacie ${slug.replace(/-/g, " ")}`,

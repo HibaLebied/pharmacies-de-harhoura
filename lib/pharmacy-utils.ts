@@ -307,7 +307,7 @@ export function formatOpeningHours(
 
       // 🟡 Si pas défini ou si "closed: true"
       if (!intervals || (Array.isArray(intervals) && intervals.length === 0)) {
-        return `${day.name}: Fermé`;
+        return `${day.name}: Fermée`;
       }
 
       // 🟡 Si ancien format { open, close }
