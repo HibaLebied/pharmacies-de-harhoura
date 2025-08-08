@@ -124,18 +124,16 @@ export default function PharmacieDeGardePage() {
 
       {/* Actions */}
       <div className="flex flex-wrap justify-center gap-3 mb-8">
-        <Button
-          onClick={fetchOpenPharmacies}
-          variant="outline"
-          disabled={loading}
-        >
-          <Home className="h-4 w-4 mr-2" />
-          Acceuil
-        </Button>
         <Link href="/pharmacies">
-          <Button variant="outline">
+          <Button className="bg-green-600 hover:bg-green-700">
             <MapPin className="h-4 w-4 mr-2" />
             Voir toutes les pharmacies
+          </Button>
+        </Link>
+        <Link href="/">
+          <Button variant="outline">
+            <Home className="h-4 w-4 mr-2" />
+            Accueil
           </Button>
         </Link>
       </div>
