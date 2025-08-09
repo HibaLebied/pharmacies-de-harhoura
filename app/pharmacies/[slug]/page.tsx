@@ -1,15 +1,10 @@
 import { supabase } from "@/lib/supabase";
 import { slugify } from "@/lib/slugify";
 import { notFound } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone } from "lucide-react";
-import {
-  getCurrentDayStatus,
-  formatOpeningHours,
-  formatPhoneNumber,
-} from "@/lib/pharmacy-utils";
+import { formatOpeningHours, formatPhoneNumber } from "@/lib/pharmacy-utils";
 import ItineraryButton from "@/components/ItineraryButton";
-
+import PharmacyStatus from "@/components/PharmacyStatus"; // ✅ Nouveau import
 import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -33,11 +28,11 @@ export async function generateMetadata({
 export default async function PharmacyPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
 
-  //Récupérer toutes les pharmacies
+  // Récupérer toutes les pharmacies
   const { data: pharmacies, error } = await supabase
     .from("pharmacies")
     .select("*");
@@ -52,7 +47,7 @@ export default async function PharmacyPage({
     return notFound();
   }
 
-  //Trouver la pharmacie correspondant au slug
+  // Trouver la pharmacie correspondant au slug
   const pharmacy = pharmacies.find((ph) => {
     const pharmacySlug = slugify(ph.name);
     return pharmacySlug === slug;
@@ -67,8 +62,6 @@ export default async function PharmacyPage({
     return notFound();
   }
 
-  //Calculer les informations dérivées
-  const dayStatus = getCurrentDayStatus(pharmacy.opening_hours);
   const { latitude, longitude } = pharmacy;
 
   return (
@@ -95,23 +88,8 @@ export default async function PharmacyPage({
 
       <div className="mt-6">
         <h2 className="text-lg sm:text-xl font-semibold mb-2">Statut actuel</h2>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <Badge
-            variant={dayStatus.isOpen ? "default" : "secondary"}
-            className={
-              dayStatus.isOpen
-                ? "bg-green-500 hover:bg-green-600"
-                : "bg-red-500 hover:bg-red-600 text-white"
-            }
-          >
-            {dayStatus.status}
-          </Badge>
-          {dayStatus.nextChange && (
-            <span className="text-sm text-gray-500">
-              {dayStatus.nextChange}
-            </span>
-          )}
-        </div>
+        {/* ✅ Composant client qui calcule le statut après le montage */}
+        <PharmacyStatus opening_hours={pharmacy.opening_hours} />
       </div>
 
       <div className="mt-6">
