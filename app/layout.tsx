@@ -6,9 +6,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Pharmacie de Garde Harhoura | Horaires & Localisation",
+  title: "Pharmacies Harhoura - Horaires & Localisation en temps réel",
   description:
-    "Trouvez facilement une pharmacie de garde à Harhoura : horaires en temps réel, localisation sur la carte et contacts directs.",
+    "Trouvez facilement les pharmacies ouvertes à Harhoura, avec horaires, localisation et contacts directs.",
   keywords: [
     "pharmacie de garde Harhoura",
     "pharmacie ouverte maintenant Harhoura",
@@ -21,41 +21,29 @@ export const metadata: Metadata = {
   authors: [
     {
       name: "Pharmacies Harhoura",
-      url: "https://pharmacies-harhoura-project.vercel.app/",
+      url: "https://pharmacies-de-harhoura.vercel.app/",
     },
   ],
   creator: "Pharmacies Harhoura",
-  metadataBase: new URL("https://pharmacies-harhoura-project.vercel.app/"),
+  metadataBase: new URL("https://pharmacies-de-harhoura.vercel.app/"),
   openGraph: {
-    title: "Pharmacies de Garde Harhoura - Ouvertes Maintenant",
-    description:
-      "Consultez la liste des pharmacies ouvertes à Harhoura avec horaires à jour et localisation précise.",
-    url: "https://pharmacies-harhoura-project.vercel.app/",
     siteName: "Pharmacies Harhoura",
-    images: [
-      {
-        url: "https://pharmacies-harhoura-project.vercel.app/og/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Pharmacies de Garde Harhoura - Ouvertes Maintenant",
-      },
-    ],
     locale: "fr_FR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pharmacies de Garde Harhoura",
-    description:
-      "Trouvez une pharmacie de garde à Harhoura. Horaires et localisation mis à jour en temps réel.",
-    images: ["https://pharmacies-harhoura-project.vercel.app/og/og-image.png"],
     creator: "@harhoura_ma",
   },
   icons: {
-    icon: "/icons/favicon.ico", // plus simple
+    icon: "/icons/favicon.ico",
     apple: "/icons/apple-touch-icon.png",
     shortcut: "/icons/favicon.ico",
   },
+};
+
+export const viewport = {
+  themeColor: "#0A9D58", // Vert pharmacie
 };
 
 export default function RootLayout({

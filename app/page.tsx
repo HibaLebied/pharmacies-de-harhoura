@@ -6,9 +6,45 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import NearestPharmacyButton from "@/components/NearestPharmacyButton";
 import HeroButton from "@/components/HeroButton";
+import type { Metadata } from "next";
 
-export const viewport = {
-  themeColor: "#0A9D58", // Vert pharmacie
+export const metadata: Metadata = {
+  title:
+    "Pharmacies Harhoura - Trouvez la pharmacie la plus proche en temps réel",
+  description:
+    "Consultez les pharmacies ouvertes à Harhoura avec horaires à jour, localisation précise et contacts directs. Trouvez rapidement votre pharmacie de garde la plus proche.",
+  keywords: [
+    "pharmacie Harhoura",
+    "pharmacie de garde Harhoura",
+    "pharmacie ouverte maintenant Harhoura",
+    "horaires pharmacie Harhoura",
+    "localisation pharmacie Harhoura",
+    "pharmacies de garde Harhoura",
+    "urgence pharmacie Harhoura",
+  ],
+  openGraph: {
+    title: "Pharmacies Harhoura - Trouvez la pharmacie ouverte la plus proche",
+    description:
+      "Liste des pharmacies ouvertes à Harhoura avec horaires en temps réel et localisation précise sur carte.",
+    url: "https://pharmacies-de-harhoura.vercel.app/",
+    images: [
+      {
+        url: "https://pharmacies-de-harhoura.vercel.app/og/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Pharmacies Harhoura - Trouvez la pharmacie la plus proche",
+      },
+    ],
+    siteName: "Pharmacies Harhoura",
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    title: "Pharmacies Harhoura - Pharmacie ouverte la plus proche",
+    description:
+      "Trouvez rapidement une pharmacie ouverte à Harhoura avec horaires et localisation en temps réel.",
+    images: ["https://pharmacies-de-harhoura.vercel.app/og/og-image.png"],
+  },
 };
 
 export default function HomePage() {
