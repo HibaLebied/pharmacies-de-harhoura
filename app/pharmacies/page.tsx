@@ -26,14 +26,14 @@ export default function PharmaciesPage() {
 
   const fetchPharmaciesData = async () => {
     try {
-      console.log("=== Début chargement pharmacies ===");
+      // console.log("=== Début chargement pharmacies ===");
       setDatabaseError(false);
 
       const { data, error, isDemo } = await pharmacyService.getPharmacies();
 
-      console.log("Mode démo :", isDemo);
-      console.log("Erreur Supabase :", error);
-      console.log("Données brutes reçues :", data);
+      // console.log("Mode démo :", isDemo);
+      // console.log("Erreur Supabase :", error);
+      // console.log("Données brutes reçues :", data);
 
       if (error) {
         console.warn("⚠️ Erreur détectée, basculement en mode erreur.");
@@ -52,14 +52,14 @@ export default function PharmaciesPage() {
         }
       );
 
-      console.log("Pharmacies après calcul status :", pharmaciesWithStatus);
+      // console.log("Pharmacies après calcul status :", pharmaciesWithStatus);
 
       setPharmacies(pharmaciesWithStatus);
     } catch (error) {
       console.error("❌ Erreur lors du chargement des pharmacies:", error);
       setDatabaseError(true);
     } finally {
-      console.log("=== Fin chargement pharmacies ===");
+      // console.log("=== Fin chargement pharmacies ===");
       setLoading(false);
     }
   };

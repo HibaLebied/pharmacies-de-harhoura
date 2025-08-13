@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     url: "https://pharmacies-de-harhoura.vercel.app/",
     images: [
       {
-        url: "https://pharmacies-de-harhoura.vercel.app/og/og-image.png",
+        url: "https://pharmacies-de-harhoura.vercel.app/og/pharmacies-og.png",
         width: 1200,
         height: 630,
         alt: "Pharmacies Harhoura - Trouvez la pharmacie la plus proche",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: "Pharmacies Harhoura - Pharmacie ouverte la plus proche",
     description:
       "Trouvez rapidement une pharmacie ouverte à Harhoura avec horaires et localisation en temps réel.",
-    images: ["https://pharmacies-de-harhoura.vercel.app/og/og-image.png"],
+    images: ["https://pharmacies-de-harhoura.vercel.app/og/pharmacies-og.png"],
   },
 };
 
