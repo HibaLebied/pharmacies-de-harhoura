@@ -189,9 +189,6 @@ export default function PharmacieDeGardePage() {
                 Toutes les pharmacies sont actuellement fermées. Consultez les
                 horaires pour connaître les prochaines ouvertures.
               </p>
-              <Link href="/pharmacie">
-                <Button>Voir toutes les pharmacies</Button>
-              </Link>
             </>
           ) : (
             <>
