@@ -97,7 +97,7 @@ export default function PharmaciesPage() {
     // }
 
     return filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }, [pharmacies, searchQuery, selectedDay]);
+  }, [pharmacies, searchQuery]);
 
   const openPharmacies = pharmacies.filter((p) => p.isOpen);
   const closedPharmacies = pharmacies.filter((p) => !p.isOpen);

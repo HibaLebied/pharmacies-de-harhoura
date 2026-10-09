@@ -3,9 +3,13 @@ export interface TimeSlot {
   close: string;
 }
 
-// Type flexible pour gérer les différents formats d'horaires
+export interface ClosedDay {
+  closed: boolean;
+}
+
+// Format flexible pour gérer les données historiques et le JSONB Supabase.
 export type OpeningHours = {
-  [key: string]: TimeSlot | TimeSlot[] | { closed: boolean } | undefined;
+  [key: string]: TimeSlot | TimeSlot[] | ClosedDay | undefined;
 };
 
 export type Pharmacy = {

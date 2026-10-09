@@ -1,67 +1,56 @@
-import { supabase } from "@/lib/supabase";
 import { slugify } from "@/lib/slugify";
 import { notFound } from "next/navigation";
-import { MapPin, Phone } from "lucide-react";
+import { AlertCircle, MapPin, Phone } from "lucide-react";
 import { formatOpeningHours, formatPhoneNumber } from "@/lib/pharmacy-utils";
 import ItineraryButton from "@/components/ItineraryButton";
-import PharmacyStatus from "@/components/PharmacyStatus"; // ✅ Nouveau import
-import { Metadata } from "next";
+import PharmacyStatus from "@/components/PharmacyStatus";
+import type { Metadata } from "next";
+import { pharmacyService } from "@/lib/pharmacy-service";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
-}) {
-  const { slug } = params;
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const pharmacyName = slug.replace(/-/g, " ");
 
   return {
-    title: `Pharmacie ${slug.replace(/-/g, " ")}`,
-    description: `Informations et horaires de la pharmacie ${slug.replace(
-      /-/g,
-      " "
-    )}`,
+    title: `Pharmacie ${pharmacyName}`,
+    description: `Informations et horaires de la pharmacie ${pharmacyName}`,
   };
 }
 
 export default async function PharmacyPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  const { slug } = await params;
+  const normalizedSlug = slugify(slug);
+  const result = await pharmacyService.getPharmacyBySlug(normalizedSlug);
 
-  // Récupérer toutes les pharmacies
-  const { data: pharmacies, error } = await supabase
-    .from("pharmacies")
-    .select("*");
-
-  if (error) {
-    console.error("Erreur Supabase:", error);
+  if (result.status === "not_found") {
     return notFound();
   }
 
-  if (!pharmacies || pharmacies.length === 0) {
-    console.warn("Aucune pharmacie trouvée dans la base de données");
-    return notFound();
-  }
-
-  // Trouver la pharmacie correspondant au slug
-  const pharmacy = pharmacies.find((ph) => {
-    const pharmacySlug = slugify(ph.name);
-    return pharmacySlug === slug;
-  });
-
-  if (!pharmacy) {
-    console.warn(`Aucune pharmacie trouvée pour le slug: ${slug}`);
-    console.warn(
-      "Slugs disponibles:",
-      pharmacies.map((p) => slugify(p.name))
+  if (result.status === "error" || result.status === "not_configured") {
+    return (
+      <PharmacyDetailError
+        title="Impossible de charger cette pharmacie"
+        message={
+          result.status === "not_configured"
+            ? "La connexion Supabase n'est pas configurée pour cet environnement."
+            : "Une erreur est survenue lors de la récupération des données."
+        }
+        detail={result.error}
+      />
     );
-    return notFound();
   }
 
+  const pharmacy = result.data;
   const { latitude, longitude } = pharmacy;
 
   return (
@@ -88,13 +77,12 @@ export default async function PharmacyPage({
 
       <div className="mt-6">
         <h2 className="text-lg sm:text-xl font-semibold mb-2">Statut actuel</h2>
-        {/* ✅ Composant client qui calcule le statut après le montage */}
         <PharmacyStatus opening_hours={pharmacy.opening_hours} />
       </div>
 
       <div className="mt-6">
         <h2 className="text-lg sm:text-xl font-semibold mb-2">
-          Horaires d'ouverture
+          Horaires d&apos;ouverture
         </h2>
         {pharmacy.opening_hours ? (
           <pre className="text-sm sm:text-base text-gray-700 whitespace-pre-line font-sans">
@@ -106,7 +94,36 @@ export default async function PharmacyPage({
       </div>
 
       <div className="mt-8">
-        <ItineraryButton latitude={latitude} longitude={longitude} />
+        <ItineraryButton latitude={latitude} longitude={longitude} compact />
+      </div>
+    </div>
+  );
+}
+
+function PharmacyDetailError({
+  title,
+  message,
+  detail,
+}: {
+  title: string;
+  message: string;
+  detail?: string;
+}) {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-2xl rounded-lg border border-orange-200 bg-orange-50 p-6 text-orange-900">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
+          <div>
+            <h1 className="mb-2 text-xl font-semibold">{title}</h1>
+            <p className="text-sm">{message}</p>
+            {detail && (
+              <p className="mt-3 rounded border border-orange-200 bg-white/70 p-3 text-xs text-orange-800">
+                {detail}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,25 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { Pharmacy, OpeningHours, TimeSlot } from "@/lib/types";
+import { useEffect, useMemo, useState } from "react";
+import type { Pharmacy } from "@/lib/types";
 import { pharmacyService } from "@/lib/pharmacy-service";
 import { PharmacyCard } from "./pharmacy-card";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isPharmacyOpen } from "@/lib/pharmacy-utils";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 
 export function PharmaciesList() {
   const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
-  const [filteredPharmacies, setFilteredPharmacies] = useState<Pharmacy[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "closed">(
@@ -31,14 +24,18 @@ export function PharmaciesList() {
   useEffect(() => {
     fetchPharmacies();
 
-    // ✅ Supabase Realtime
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      return;
+    }
+
     const channel = supabase
       .channel("pharmacies-realtime")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "pharmacies" },
-        (payload) => {
-          console.log("🔄 Changement détecté :", payload);
+        () => {
           fetchPharmacies();
         }
       )
@@ -48,10 +45,6 @@ export function PharmaciesList() {
       supabase.removeChannel(channel);
     };
   }, []);
-
-  useEffect(() => {
-    filterPharmacies();
-  }, [pharmacies, searchTerm, statusFilter]);
 
   const fetchPharmacies = async () => {
     try {
@@ -72,10 +65,9 @@ export function PharmaciesList() {
     }
   };
 
-  const filterPharmacies = () => {
+  const filteredPharmacies = useMemo(() => {
     let filtered = pharmacies;
 
-    // 🔍 Recherche
     if (searchTerm) {
       filtered = filtered.filter(
         (pharmacy) =>
@@ -84,7 +76,6 @@ export function PharmaciesList() {
       );
     }
 
-    // 🟢/🔴 Statut
     if (statusFilter !== "all") {
       filtered = filtered.filter((pharmacy) => {
         const isOpen = isPharmacyOpen(pharmacy.opening_hours);
@@ -92,8 +83,8 @@ export function PharmaciesList() {
       });
     }
 
-    setFilteredPharmacies(filtered);
-  };
+    return filtered;
+  }, [pharmacies, searchTerm, statusFilter]);
 
   if (loading) {
     return <PharmaciesListSkeleton />;
@@ -107,7 +98,7 @@ export function PharmaciesList() {
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-800">
             <strong>Mode démonstration</strong> - Vous visualisez des données
-            d'exemple.
+            d&apos;exemple.
             {error && (
               <details className="mt-2">
                 <summary className="cursor-pointer text-sm">
@@ -132,32 +123,31 @@ export function PharmaciesList() {
           />
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="flex items-center bg-transparent"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              {statusFilter === "all"
-                ? "Toutes"
-                : statusFilter === "open"
-                ? "Ouvertes"
-                : "Fermées"}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setStatusFilter("all")}>
-              Toutes les pharmacies
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter("open")}>
-              Pharmacies ouvertes
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter("closed")}>
-              Pharmacies fermées
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant={statusFilter === "all" ? "default" : "outline"}
+            onClick={() => setStatusFilter("all")}
+            className="flex items-center"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Toutes
+          </Button>
+          <Button
+            type="button"
+            variant={statusFilter === "open" ? "default" : "outline"}
+            onClick={() => setStatusFilter("open")}
+          >
+            Ouvertes
+          </Button>
+          <Button
+            type="button"
+            variant={statusFilter === "closed" ? "default" : "outline"}
+            onClick={() => setStatusFilter("closed")}
+          >
+            Fermées
+          </Button>
+        </div>
       </div>
 
       {/* Résultats */}

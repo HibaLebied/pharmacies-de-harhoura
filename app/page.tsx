@@ -1,9 +1,7 @@
 import { Suspense } from "react";
 import { PharmaciesList } from "@/components/pharmacies-list";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Cross, Clock, Phone, Settings, Navigation } from "lucide-react";
+import { Cross, Clock, Phone, Navigation } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import NearestPharmacyButton from "@/components/NearestPharmacyButton";
 import HeroButton from "@/components/HeroButton";
 import type { Metadata } from "next";
@@ -120,7 +118,7 @@ export default function HomePage() {
               </h1>
 
               <p className="text-lg lg:text-xl text-gray-600 mb-8 leading-relaxed">
-                Consultez en temps réel les horaires d'ouverture, la
+                Consultez en temps réel les horaires d&apos;ouverture, la
                 localisation précise, et contactez directement les pharmacies de
                 garde à Harhoura.
               </p>

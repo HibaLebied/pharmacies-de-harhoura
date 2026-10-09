@@ -1,16 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
+
+type NearestPharmacy = {
+  name: string;
+  address: string;
+  phone?: string;
+  distance?: number;
+};
 
 export default function NearestPharmacyButton() {
   const [loading, setLoading] = useState(false);
-  const [nearestPharmacy, setNearestPharmacy] = useState<any>(null);
+  const [nearestPharmacy, setNearestPharmacy] =
+    useState<NearestPharmacy | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleClick() {
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      setError("La connexion Supabase n'est pas configurée pour cet environnement.");
+      return;
+    }
+
     if (!navigator.geolocation) {
-      alert("La géolocalisation n’est pas supportée par votre navigateur.");
+      setError("La géolocalisation n'est pas supportée par votre navigateur.");
       return;
     }
 
@@ -28,8 +43,6 @@ export default function NearestPharmacyButton() {
       async (position) => {
         const { latitude, longitude } = position.coords;
 
-        console.log("User location:", latitude, longitude);
-
         try {
           // Appel direct Supabase RPC
           const { data, error } = await supabase.rpc(
@@ -41,7 +54,6 @@ export default function NearestPharmacyButton() {
           );
 
           if (error) {
-            console.error("Supabase RPC error:", error.message ?? error);
             setError("Erreur lors de la recherche : " + (error.message ?? ""));
             setNearestPharmacy(null);
           } else if (
@@ -57,11 +69,10 @@ export default function NearestPharmacyButton() {
             // Parfois data est un objet (pas un tableau) car fonction PL/pgSQL retourne table limit 1
             // donc pas forcément data[0], juste data directement
             const pharmacy = Array.isArray(data) ? data[0] : data;
-            setNearestPharmacy(pharmacy);
+            setNearestPharmacy(pharmacy as NearestPharmacy);
             setError(null);
           }
         } catch (err) {
-          console.error("Erreur inattendue :", err);
           setError("Une erreur inattendue est survenue.");
           setNearestPharmacy(null);
         } finally {
@@ -69,8 +80,12 @@ export default function NearestPharmacyButton() {
         }
       },
       (err) => {
-        console.error(err);
-        setError("Impossible d’obtenir votre localisation.");
+        const denied = err.code === err.PERMISSION_DENIED;
+        setError(
+          denied
+            ? "Localisation refusée. Autorisez la géolocalisation pour trouver la pharmacie la plus proche."
+            : "Impossible d'obtenir votre localisation."
+        );
         setLoading(false);
       }
     );

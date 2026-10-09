@@ -220,12 +220,12 @@ export default function PharmacieDeGardePage() {
           <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div>
             <h3 className="font-medium text-blue-900 mb-2">
-              En cas d'urgence médicale
+              En cas d&apos;urgence médicale
             </h3>
             <p className="text-blue-800 text-sm">
-              Si aucune pharmacie n'est ouverte et que vous avez besoin de
+              Si aucune pharmacie n&apos;est ouverte et que vous avez besoin de
               médicaments en urgence, contactez le SAMU (15) ou rendez-vous aux
-              urgences de l'hôpital le plus proche.
+              urgences de l&apos;hôpital le plus proche.
             </p>
           </div>
         </div>

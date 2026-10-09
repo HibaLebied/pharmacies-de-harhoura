@@ -26,7 +26,7 @@ export function DayFilter({ selectedDay, onDayChange }: DayFilterProps) {
           className={day === currentDay ? "ring-2 ring-blue-300" : ""}
         >
           {DAYS_FR[day]}
-          {day === currentDay && <span className="ml-1 text-xs">(Aujourd'hui)</span>}
+          {day === currentDay && <span className="ml-1 text-xs">(Aujourd&apos;hui)</span>}
         </Button>
       ))}
     </div>

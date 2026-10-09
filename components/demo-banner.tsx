@@ -23,7 +23,7 @@ export function DemoBanner({ showDatabaseError = false }: DemoBannerProps) {
           <p className="text-blue-800 text-sm">
             {showDatabaseError ? (
               <>
-                La table des pharmacies n'existe pas encore dans votre base Supabase.
+                La table des pharmacies n&apos;existe pas encore dans votre base Supabase.
                 <br />
                 Exécutez les scripts SQL fournis pour créer la structure de données.
               </>

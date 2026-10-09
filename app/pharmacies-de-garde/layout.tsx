@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: "Pharmacies de Garde à Harhoura - Ouvertes Maintenant",
     description:
       "Trouvez rapidement une pharmacie de garde ouverte à Harhoura avec horaires et localisation à jour.",
-    url: "https://pharmacies-de-harhoura.vercel.app/pharmaciesDeGarde",
+    url: "https://pharmacies-de-harhoura.vercel.app/pharmacies-de-garde",
     images: [
       {
         url: "https://pharmacies-de-harhoura.vercel.app/og/pharmaciesDeGarde-og.png",

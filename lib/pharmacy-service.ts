@@ -1,10 +1,17 @@
 import type { Pharmacy } from "@/lib/types" // Utiliser le type Pharmacy défini dans lib/types
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient, getSupabaseConfigurationError } from "@/lib/supabase"
 import { DEMO_PHARMACIES } from "@/lib/mock-data"
+import { slugify } from "@/lib/slugify"
+
+export type PharmacyLookupResult =
+  | { status: "found"; data: Pharmacy; error?: undefined }
+  | { status: "not_found"; data: null; error?: undefined }
+  | { status: "not_configured"; data: null; error: string }
+  | { status: "error"; data: null; error: string }
 
 export class PharmacyService {
   private static instance: PharmacyService
-  private demoMode = false // Initialiser à false
+  private demoMode = false
 
   static getInstance(): PharmacyService {
     if (!PharmacyService.instance) {
@@ -25,12 +32,15 @@ export class PharmacyService {
 
     try {
       // Vérifier si Supabase est configuré
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      if (!supabaseUrl || !supabaseKey) {
-        console.log("Variables Supabase non configurées, utilisation des données de démo")
-        this.demoMode = true
-        return { data: DEMO_PHARMACIES, isDemo: true }
+      const configurationError = getSupabaseConfigurationError()
+      const supabase = getSupabaseClient()
+
+      if (configurationError || !supabase) {
+        return {
+          data: DEMO_PHARMACIES,
+          isDemo: true,
+          error: configurationError ?? "Client Supabase indisponible.",
+        }
       }
 
       // Essayer de récupérer les données depuis Supabase
@@ -45,17 +55,15 @@ export class PharmacyService {
         ) {
           console.warn(
             "La table des pharmacies n'existe pas dans Supabase, basculement vers les données de démo. Veuillez exécuter les scripts SQL pour créer la table.",
-          )
-          this.demoMode = true
-          return {
-            data: DEMO_PHARMACIES,
-            isDemo: true,
+        )
+        return {
+          data: DEMO_PHARMACIES,
+          isDemo: true,
             error: `Supabase: ${error.message}`,
-          }
         }
+      }
 
-        console.warn("Erreur Supabase, basculement vers les données de démo:", error.message)
-        this.demoMode = true
+      console.warn("Erreur Supabase, basculement vers les données de démo:", error.message)
         return {
           data: DEMO_PHARMACIES,
           isDemo: true,
@@ -72,7 +80,6 @@ export class PharmacyService {
       return { data, isDemo: false }
     } catch (error) {
       console.warn("Erreur de connexion, utilisation des données de démo:", error)
-      this.demoMode = true
       return {
         data: DEMO_PHARMACIES,
         isDemo: true,
@@ -83,12 +90,12 @@ export class PharmacyService {
 
   async checkConnection(): Promise<{ connected: boolean; error?: string }> {
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      if (!supabaseUrl || !supabaseKey) {
+      const configurationError = getSupabaseConfigurationError()
+      const supabase = getSupabaseClient()
+      if (configurationError || !supabase) {
         return {
           connected: false,
-          error: "Variables d'environnement Supabase manquantes",
+          error: configurationError ?? "Client Supabase indisponible.",
         }
       }
       const { error } = await supabase.from("pharmacies").select("count", { count: "exact", head: true })
@@ -100,6 +107,81 @@ export class PharmacyService {
       return {
         connected: false,
         error: error instanceof Error ? error.message : "Erreur de connexion",
+      }
+    }
+  }
+
+  async getPharmacyBySlug(slug: string): Promise<PharmacyLookupResult> {
+    const normalizedSlug = slugify(slug)
+    const configurationError = getSupabaseConfigurationError()
+    const supabase = getSupabaseClient()
+
+    if (configurationError || !supabase) {
+      return {
+        status: "not_configured",
+        data: null,
+        error: configurationError ?? "Client Supabase indisponible.",
+      }
+    }
+
+    try {
+      const nameCandidate = normalizedSlug.replace(/-/g, " ").trim()
+      const baseQuery = supabase
+        .from("pharmacies")
+        .select("*")
+        .eq("is_active", true)
+        .order("name")
+
+      const targetedQuery = nameCandidate
+        ? baseQuery.ilike("name", `%${nameCandidate}%`).limit(10)
+        : baseQuery.limit(10)
+
+      const { data: targetedData, error: targetedError } = await targetedQuery
+
+      if (targetedError) {
+        return {
+          status: "error",
+          data: null,
+          error: targetedError.message,
+        }
+      }
+
+      const targetedMatch = (targetedData as Pharmacy[] | null)?.find(
+        (pharmacy: Pharmacy) => slugify(pharmacy.name) === normalizedSlug
+      )
+
+      if (targetedMatch) {
+        return { status: "found", data: targetedMatch }
+      }
+
+      // Fallback nécessaire pour les noms accentués ou les slugs historiques,
+      // tant que la table ne possède pas de colonne slug normalisée.
+      const { data, error } = await supabase
+        .from("pharmacies")
+        .select("*")
+        .eq("is_active", true)
+        .order("name")
+
+      if (error) {
+        return {
+          status: "error",
+          data: null,
+          error: error.message,
+        }
+      }
+
+      const pharmacy = (data as Pharmacy[] | null)?.find(
+        (currentPharmacy: Pharmacy) => slugify(currentPharmacy.name) === normalizedSlug
+      )
+
+      return pharmacy
+        ? { status: "found", data: pharmacy }
+        : { status: "not_found", data: null }
+    } catch (error) {
+      return {
+        status: "error",
+        data: null,
+        error: error instanceof Error ? error.message : "Erreur inconnue",
       }
     }
   }

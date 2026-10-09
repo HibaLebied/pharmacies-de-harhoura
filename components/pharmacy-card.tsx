@@ -9,23 +9,12 @@ import {
 import { MapPin, Phone, Clock } from "lucide-react";
 import {
   getCurrentDayStatus,
-  formatOpeningHours,
   formatPhoneNumber,
 } from "@/lib/pharmacy-utils";
 import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import CallButton from "./CallButton"; // Nouveau Client Component
-import DirectionsButton from "./DirectionsButton"; // Nouveau Client Component
 import Link from "next/link";
 import ItineraryButton from "./ItineraryButton";
 import { slugify } from "@/lib/slugify";
-import { PharmacyWithStatus } from "@/lib/types";
 
 interface PharmacyCardProps {
   pharmacy: Pharmacy;

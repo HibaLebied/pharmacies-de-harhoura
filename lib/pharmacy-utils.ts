@@ -1,5 +1,5 @@
 import type { OpeningHours, TimeSlot } from "./types";
-import type { Pharmacy } from "@/types/pharmacy";
+import type { Pharmacy } from "@/lib/types";
 
 export const DAYS_FR = {
   lun: "Lundi",
@@ -311,7 +311,13 @@ export function formatOpeningHours(
       }
 
       // 🟡 Si ancien format { open, close }
-      if (!Array.isArray(intervals) && intervals.open && intervals.close) {
+      if (
+        !Array.isArray(intervals) &&
+        "open" in intervals &&
+        "close" in intervals &&
+        intervals.open &&
+        intervals.close
+      ) {
         return `${day.name}: ${intervals.open} - ${intervals.close}`;
       }
 
